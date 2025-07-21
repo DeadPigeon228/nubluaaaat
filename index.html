@@ -17,6 +17,7 @@
             --success-color: #28a745;
             --danger-color: #dc3545;
             --warning-color: #ffc107;
+            --info-color: #17a2b8;
         }
         
         * {
@@ -135,6 +136,12 @@
         .status {
             color: var(--accent-color);
             font-weight: 500;
+        }
+        
+        .sync-status {
+            color: var(--info-color);
+            font-weight: 500;
+            margin-left: 10px;
         }
         
         .artifacts-library {
@@ -360,7 +367,6 @@
             padding: 10px;
         }
         
-        /* Обновленные стили для кнопок "Выдано" */
         .issued-control {
             display: flex;
             align-items: center;
@@ -403,7 +409,6 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         
-        /* Поле заметок */
         .notes-container {
             margin-top: 10px;
         }
@@ -434,7 +439,6 @@
             box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.2);
         }
         
-        /* Общие заметки */
         .general-notes {
             margin-top: 40px;
             padding: 20px;
@@ -462,7 +466,6 @@
             color: white;
         }
         
-        /* Кнопка удаления игрока */
         .player-delete-btn {
             position: absolute;
             top: 10px;
@@ -489,7 +492,6 @@
             background-color: #ff0000;
         }
         
-        /* Drag preview */
         .drag-preview {
             position: fixed;
             pointer-events: none;
@@ -504,28 +506,42 @@
             opacity: 0.9;
         }
         
-        /* Уведомление о синхронизации */
         .sync-notification {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            padding: 12px 20px;
             background-color: var(--success-color);
             color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            transform: translateY(100px);
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
             opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 10000;
+            transition: opacity 0.3s;
         }
         
         .sync-notification.show {
-            transform: translateY(0);
             opacity: 1;
         }
         
-        /* Адаптивность */
+        .github-sync-status {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: var(--info-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .github-sync-status.show {
+            opacity: 1;
+        }
+        
         @media (max-width: 1200px) {
             .players-container {
                 grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -559,16 +575,13 @@
         <p class="subtitle">Управление артефактами и опросниками игроков</p>
         
         <div class="survey-link">
-            <a href="https://docs.google.com/spreadsheets/d/17fon-4iQkof8Vf9vr4Cq5vPLV1ODBK5nH4bW77L_i1s/edit?gid=0#gid=0" id="allSurveysLink" target="_blank">-Ссылка на все опросники-</a>
-        </div>
-        <div class="survey-link">
-            <a href="https://docs.google.com/forms/d/1AN6YxirD_OZ2fa9B0SZRX1wF9mMJ5DEL3wi36aaSdMQ/edit" id="allSurveysLink" target="_blank">-Ссылка на опросник-</a>
+            <a href="https://docs.google.com/spreadsheets/d/17fon-4iQkof8Vf9vr4Cq5vPLV1ODBK5nH4bW77L_i1s/edit?gid=0#gid=0" id="allSurveysLink" target="_blank">Ссылка на все опросники</a>
         </div>
         
         <div class="controls">
             <button id="resetBtn"><i class="fas fa-redo"></i> Сбросить все данные</button>
             <button id="addPlayerBtn"><i class="fas fa-plus"></i> Добавить игрока</button>
-            <div class="status">Изменения сохраняются автоматически</div>
+            <div class="status">Изменения сохраняются автоматически <span id="lastSync" class="sync-status"></span></div>
         </div>
         
         <div class="artifacts-library">
@@ -719,26 +732,22 @@
         </div>
     </div>
 
-    <!-- Уведомление о синхронизации -->
-    <div id="syncNotification" class="sync-notification"></div>
-
-    <!-- Подключаем Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <div class="sync-notification" id="syncNotification">Данные синхронизированы!</div>
+    <div class="github-sync-status" id="githubSyncStatus">Синхронизация с GitHub...</div>
 
     <script>
-        // Конфигурация Firebase
-        const firebaseConfig = {
-            databaseURL: "https://artefacts-46779-default-rtdb.asia-southeast1.firebasedatabase.app"
-        };
-        
-        // Инициализируем Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        // Конфигурация GitHub
+        const GITHUB_USERNAME = 'DeadPigeon228';
+        const GITHUB_REPO = 'artefact';
+        const GITHUB_TOKEN = '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';
+        const GITHUB_FILE_PATH = 'data.json';
         
         // Ключи для localStorage
-        const STORAGE_KEY = 'playersArtifactsSystem_v9';
-        const GENERAL_NOTES_KEY = 'generalNotes_v5';
+        const STORAGE_KEY = 'playersArtifactsSystem_v8';
+        const GENERAL_NOTES_KEY = 'generalNotes_v4';
+        const LAST_SYNC_KEY = 'lastSync_v4';
+        const TIMESTAMP_KEY = 'lastUpdateTimestamp_v3';
+        const LAST_GITHUB_SYNC_KEY = 'lastGitHubSync_v1';
         
         // Создаем начальные данные для 20 игроков
         function createInitialPlayers() {
@@ -756,8 +765,16 @@
             return players;
         }
         
-        // Загружаем данные из localStorage
-        function loadLocalPlayers() {
+        // Загружаем данные из localStorage или создаем начальные
+        function loadData() {
+            const generalNotes = localStorage.getItem(GENERAL_NOTES_KEY) || "";
+            document.getElementById('generalNotes').value = generalNotes;
+            
+            const lastSync = localStorage.getItem(LAST_SYNC_KEY);
+            if (lastSync) {
+                document.getElementById('lastSync').textContent = `Последняя синхронизация: ${lastSync}`;
+            }
+            
             const savedData = localStorage.getItem(STORAGE_KEY);
             if (savedData) {
                 return JSON.parse(savedData);
@@ -765,66 +782,61 @@
             return createInitialPlayers();
         }
         
-        // Загружаем все данные (сначала из Firebase, потом из localStorage)
-        async function loadAllData() {
-            try {
-                // Пытаемся загрузить с Firebase
-                const snapshot = await database.ref('/').once('value');
-                const firebaseData = snapshot.val();
-                
-                if (firebaseData) {
-                    // Сохраняем в localStorage
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(firebaseData.players || []));
-                    localStorage.setItem(GENERAL_NOTES_KEY, firebaseData.generalNotes || '');
-                    
-                    return {
-                        players: firebaseData.players || createInitialPlayers(),
-                        generalNotes: firebaseData.generalNotes || ""
-                    };
-                }
-            } catch (error) {
-                console.error("Ошибка загрузки с Firebase:", error);
-            }
-            
-            // Если не удалось загрузить с Firebase, пробуем локальные данные
-            const localPlayers = loadLocalPlayers();
-            return {
-                players: localPlayers && localPlayers.length > 0 ? localPlayers : createInitialPlayers(),
-                generalNotes: localStorage.getItem(GENERAL_NOTES_KEY) || ""
-            };
-        }
-        
-        // Сохраняем все данные (и локально, и на Firebase)
-        async function saveAllData() {
+        // Сохраняем текущие данные
+        function saveData() {
             const data = {
                 players: players,
                 generalNotes: document.getElementById('generalNotes').value,
-                lastUpdated: new Date().toISOString()
+                timestamp: Date.now()
             };
             
-            // Сохраняем локально
             localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
-            localStorage.setItem(GENERAL_NOTES_KEY, data.generalNotes);
+            localStorage.setItem(GENERAL_NOTES_KEY, document.getElementById('generalNotes').value);
             
-            // Синхронизируем с Firebase
-            try {
-                await database.ref('/').set(data);
-                showNotification('Данные сохранены и синхронизированы');
-            } catch (error) {
-                console.error("Ошибка синхронизации с Firebase:", error);
-                showNotification('Ошибка синхронизации', true);
-            }
+            // Устанавливаем метку времени обновления
+            const timestamp = Date.now().toString();
+            localStorage.setItem(TIMESTAMP_KEY, timestamp);
+            
+            updateLastSyncTime();
+            
+            // Автоматическая синхронизация с GitHub
+            syncWithGitHub(data);
+        }
+        
+        // Обновляем время последней синхронизации
+        function updateLastSyncTime() {
+            const now = new Date();
+            const formattedTime = now.toLocaleString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            localStorage.setItem(LAST_SYNC_KEY, formattedTime);
+            document.getElementById('lastSync').textContent = `Последняя синхронизация: ${formattedTime}`;
         }
         
         // Сбрасываем все данные
-        async function resetData() {
+        function resetData() {
             if (confirm('Вы уверены, что хотите сбросить ВСЕ данные? Все ники, артефакты и заметки будут удалены.')) {
                 players = createInitialPlayers();
                 localStorage.removeItem(STORAGE_KEY);
                 localStorage.removeItem(GENERAL_NOTES_KEY);
+                localStorage.removeItem(LAST_SYNC_KEY);
+                localStorage.removeItem(TIMESTAMP_KEY);
+                localStorage.removeItem(LAST_GITHUB_SYNC_KEY);
                 document.getElementById('generalNotes').value = "";
-                await saveAllData();
+                document.getElementById('lastSync').textContent = "";
                 renderPlayers();
+                
+                // Синхронизируем сброс с GitHub
+                syncWithGitHub({
+                    players: players,
+                    generalNotes: "",
+                    timestamp: Date.now()
+                });
             }
         }
         
@@ -839,7 +851,7 @@
                 issued: null,
                 notes: ""
             });
-            saveAllData();
+            saveData();
             renderPlayers();
         }
         
@@ -847,7 +859,7 @@
         function deletePlayer(playerId) {
             if (confirm('Вы уверены, что хотите удалить этого игрока?')) {
                 players = players.filter(p => p.id !== playerId);
-                saveAllData();
+                saveData();
                 renderPlayers();
             }
         }
@@ -882,7 +894,7 @@
                 nameInput.addEventListener('input', (e) => {
                     player.name = e.target.value;
                     updatePlayerLink(player);
-                    saveAllData();
+                    saveData();
                 });
                 
                 const linkContainer = document.createElement('div');
@@ -895,7 +907,7 @@
                 linkInput.value = player.link;
                 linkInput.addEventListener('input', (e) => {
                     player.link = e.target.value;
-                    saveAllData();
+                    saveData();
                 });
                 
                 const link = document.createElement('a');
@@ -943,7 +955,7 @@
                 
                 playerElement.appendChild(artifactsContainer);
                 
-                // Контроль выдачи (обновленные кнопки)
+                // Контроль выдачи
                 const issuedControl = document.createElement('div');
                 issuedControl.className = 'issued-control';
                 
@@ -961,7 +973,7 @@
                     player.issued = true;
                     yesBtn.classList.add('active');
                     noBtn.classList.remove('active');
-                    saveAllData();
+                    saveData();
                 });
                 
                 const noBtn = document.createElement('button');
@@ -971,7 +983,7 @@
                     player.issued = false;
                     noBtn.classList.add('active');
                     yesBtn.classList.remove('active');
-                    saveAllData();
+                    saveData();
                 });
                 
                 issuedButtons.appendChild(yesBtn);
@@ -997,7 +1009,7 @@
                 notesInput.value = player.notes || '';
                 notesInput.addEventListener('input', (e) => {
                     player.notes = e.target.value;
-                    saveAllData();
+                    saveData();
                 });
                 
                 notesContainer.appendChild(notesLabel);
@@ -1062,7 +1074,7 @@
                     empty.textContent = 'Перетащите артефакт';
                     slot.appendChild(empty);
                     
-                    saveAllData();
+                    saveData();
                 }
             }
         }
@@ -1200,61 +1212,244 @@
                 }
             }
             
-            saveAllData();
+            saveData();
         }
         
-        // Инициализация перетаскивания
-        function initDragAndDrop() {
-            document.querySelectorAll('#artifactsGrid .artifact').forEach(artifact => {
-                artifact.addEventListener('dragstart', dragStart);
-                artifact.addEventListener('dragend', dragEnd);
-            });
-        }
-        
-        // Показываем уведомление
-        function showNotification(message, isError = false) {
+        // Показываем уведомление о синхронизации
+        function showSyncNotification() {
             const notification = document.getElementById('syncNotification');
-            notification.textContent = message;
-            notification.style.backgroundColor = isError ? 'var(--danger-color)' : 'var(--success-color)';
             notification.classList.add('show');
-            
             setTimeout(() => {
                 notification.classList.remove('show');
             }, 3000);
         }
         
-        // Дебаунс для оптимизации частых вызовов
-        function debounce(func, timeout = 300) {
-            let timer;
-            return (...args) => {
-                clearTimeout(timer);
-                timer = setTimeout(() => { func.apply(this, args); }, timeout);
-            };
+        // Показываем статус синхронизации с GitHub
+        function showGitHubSyncStatus(message, isError = false) {
+            const statusElement = document.getElementById('githubSyncStatus');
+            statusElement.textContent = message;
+            statusElement.style.backgroundColor = isError ? 'var(--danger-color)' : 'var(--success-color)';
+            statusElement.classList.add('show');
+            
+            setTimeout(() => {
+                statusElement.classList.remove('show');
+            }, 3000);
         }
         
-        // Глобальные переменные
-        let players = [];
+        // Синхронизация с GitHub
+        async function syncWithGitHub(data) {
+            try {
+                showGitHubSyncStatus('Синхронизация с GitHub...');
+                
+                // Проверяем, когда была последняя синхронизация
+                const lastSync = localStorage.getItem(LAST_GITHUB_SYNC_KEY);
+                const now = Date.now();
+                
+                // Если последняя синхронизация была менее 10 секунд назад - пропускаем
+                if (lastSync && now - parseInt(lastSync) < 10000) {
+                    return;
+                }
+                
+                // Получаем текущий SHA файла (если он существует)
+                let sha = null;
+                try {
+                    const getResponse = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`, {
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    
+                    if (getResponse.ok) {
+                        const fileData = await getResponse.json();
+                        sha = fileData.sha;
+                    }
+                } catch (e) {
+                    console.log('Файл еще не существует, будет создан новый');
+                }
+                
+                // Преобразуем данные в base64
+                const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+                
+                // Отправляем данные на GitHub
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `Auto-sync: ${new Date().toLocaleString()}`,
+                        content: content,
+                        sha: sha
+                    })
+                });
+                
+                if (response.ok) {
+                    showGitHubSyncStatus('Данные синхронизированы с GitHub');
+                    localStorage.setItem(LAST_GITHUB_SYNC_KEY, Date.now().toString());
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Ошибка синхронизации с GitHub');
+                }
+            } catch (error) {
+                console.error('Ошибка синхронизации с GitHub:', error);
+                showGitHubSyncStatus(`Ошибка: ${error.message}`, true);
+            }
+        }
+        
+        // Загрузка данных с GitHub
+        async function loadFromGitHub() {
+            try {
+                showGitHubSyncStatus('Загрузка данных с GitHub...');
+                
+                const response = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const fileData = await response.json();
+                    const content = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+                    
+                    // Обновляем локальные данные
+                    players = content.players || createInitialPlayers();
+                    document.getElementById('generalNotes').value = content.generalNotes || '';
+                    
+                    // Сохраняем в localStorage
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+                    localStorage.setItem(GENERAL_NOTES_KEY, content.generalNotes || '');
+                    localStorage.setItem(TIMESTAMP_KEY, content.timestamp || Date.now().toString());
+                    
+                    // Обновляем интерфейс
+                    renderPlayers();
+                    updateLastSyncTime();
+                    
+                    showGitHubSyncStatus('Данные загружены с GitHub');
+                    return true;
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Ошибка загрузки данных');
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных с GitHub:', error);
+                showGitHubSyncStatus(`Ошибка: ${error.message}`, true);
+                return false;
+            }
+        }
+        
+        // Улучшенная синхронизация данных между вкладками и устройствами
+        function setupSync() {
+            // 1. Синхронизация через событие storage (основной метод)
+            window.addEventListener('storage', (e) => {
+                if (e.key === STORAGE_KEY && e.newValue) {
+                    processDataUpdate(e.newValue);
+                }
+                
+                if (e.key === GENERAL_NOTES_KEY) {
+                    document.getElementById('generalNotes').value = e.newValue || '';
+                    showSyncNotification();
+                }
+                
+                if (e.key === LAST_SYNC_KEY) {
+                    document.getElementById('lastSync').textContent = e.newValue ? `Последняя синхронизация: ${e.newValue}` : '';
+                }
+            });
+            
+            // 2. Альтернативный метод: проверка timestamp каждые 2 секунды
+            setInterval(() => {
+                checkForUpdates();
+            }, 2000);
+            
+            // 3. Периодическая синхронизация с GitHub (каждые 30 секунд)
+            setInterval(() => {
+                const data = {
+                    players: players,
+                    generalNotes: document.getElementById('generalNotes').value,
+                    timestamp: Date.now()
+                };
+                syncWithGitHub(data);
+            }, 30000);
+            
+            // 4. Периодическая проверка обновлений на GitHub (каждые 60 секунд)
+            setInterval(() => {
+                loadFromGitHub();
+            }, 60000);
+        }
+        
+        // Проверка обновлений данных
+        function checkForUpdates() {
+            const lastUpdate = localStorage.getItem(TIMESTAMP_KEY);
+            const currentUpdate = localStorage.getItem('currentTimestamp_v3');
+            
+            if (lastUpdate && currentUpdate && lastUpdate !== currentUpdate) {
+                // Данные были обновлены в другой вкладке
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    processDataUpdate(savedData);
+                }
+                
+                const generalNotes = localStorage.getItem(GENERAL_NOTES_KEY);
+                if (generalNotes !== null) {
+                    document.getElementById('generalNotes').value = generalNotes;
+                }
+                
+                localStorage.setItem('currentTimestamp_v3', lastUpdate);
+                showSyncNotification();
+            }
+        }
+        
+        // Обработка обновленных данных
+        function processDataUpdate(newData) {
+            try {
+                const parsedData = JSON.parse(newData);
+                if (Array.isArray(parsedData)) {
+                    players = parsedData;
+                    renderPlayers();
+                    updateLastSyncTime();
+                    showSyncNotification();
+                }
+            } catch (error) {
+                console.error('Ошибка при обработке обновленных данных:', error);
+            }
+        }
+        
+        // Загружаем данные
+        let players = loadData();
         
         // Инициализация страницы
         document.addEventListener('DOMContentLoaded', async () => {
-            // Загружаем данные
-            const { players: loadedPlayers, generalNotes } = await loadAllData();
-            players = loadedPlayers;
-            document.getElementById('generalNotes').value = generalNotes;
+            // Инициализируем перетаскивание для всех артефактов в библиотеке
+            document.querySelectorAll('#artifactsGrid .artifact').forEach(artifact => {
+                artifact.addEventListener('dragstart', dragStart);
+                artifact.addEventListener('dragend', dragEnd);
+            });
             
-            // Рендерим игроков
             renderPlayers();
             
-            // Настройка обработчиков событий
-            document.getElementById('generalNotes').addEventListener('input', debounce(saveAllData, 1000));
+            // Настройка кнопок
             document.getElementById('resetBtn').addEventListener('click', resetData);
             document.getElementById('addPlayerBtn').addEventListener('click', addNewPlayer);
             
-            // Настройка перетаскивания артефактов
-            initDragAndDrop();
+            // Настройка синхронизации
+            setupSync();
             
-            // Периодическая синхронизация (каждые 30 сек)
-            setInterval(saveAllData, 30000);
+            // Устанавливаем начальную метку времени
+            if (!localStorage.getItem('currentTimestamp_v3')) {
+                localStorage.setItem('currentTimestamp_v3', Date.now().toString());
+            }
+            
+            // Автосохранение общих заметок
+            document.getElementById('generalNotes').addEventListener('input', saveData);
+            
+            // Первоначальная проверка обновлений
+            checkForUpdates();
+            
+            // Загружаем данные с GitHub при старте
+            await loadFromGitHub();
         });
     </script>
 </body>
