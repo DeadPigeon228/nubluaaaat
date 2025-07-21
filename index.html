@@ -553,10 +553,41 @@
                 height: 70px;
             }
         }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-spinner {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid var(--accent-color);
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="container" id="mainContainer" style="display: none;">
         <h1>Система учета игроков и артефактов</h1>
         <p class="subtitle">Управление артефактами и опросниками игроков</p>
         
@@ -642,7 +673,8 @@
                         document.getElementById('lastSync').textContent = "созданы начальные данные";
                         console.log("Созданы начальные данные");
                         // Сохраняем начальные данные
-                        saveData();
+                        saveData().then(resolve);
+                        return;
                     }
                     
                     isDataLoaded = true;
@@ -661,26 +693,28 @@
         
         // Сохраняем данные в Firebase
         function saveData() {
-            if (!isDataLoaded) return;
-            
-            const data = {
-                players: players,
-                generalNotes: document.getElementById('generalNotes').value,
-                timestamp: Date.now()
-            };
-            
-            document.getElementById('lastSync').textContent = "сохранение...";
-            
-            database.ref('data').set(data)
-                .then(() => {
-                    showSyncNotification();
-                    document.getElementById('lastSync').textContent = "данные сохранены";
-                    console.log("Данные успешно сохранены в Firebase");
-                })
-                .catch((error) => {
-                    console.error("Ошибка сохранения данных:", error);
-                    document.getElementById('lastSync').textContent = "ошибка сохранения";
-                });
+            return new Promise((resolve) => {
+                const data = {
+                    players: players,
+                    generalNotes: document.getElementById('generalNotes').value,
+                    timestamp: Date.now()
+                };
+                
+                document.getElementById('lastSync').textContent = "сохранение...";
+                
+                database.ref('data').set(data)
+                    .then(() => {
+                        showSyncNotification();
+                        document.getElementById('lastSync').textContent = "данные сохранены";
+                        console.log("Данные успешно сохранены в Firebase");
+                        resolve();
+                    })
+                    .catch((error) => {
+                        console.error("Ошибка сохранения данных:", error);
+                        document.getElementById('lastSync').textContent = "ошибка сохранения";
+                        resolve();
+                    });
+            });
         }
         
         // Сбрасываем все данные
@@ -1098,6 +1132,10 @@
         
         // Инициализация страницы
         document.addEventListener('DOMContentLoaded', async () => {
+            // Показываем загрузочный экран
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            document.getElementById('mainContainer').style.display = 'none';
+            
             // Создаем библиотеку артефактов
             createArtifactsLibrary();
             
@@ -1108,6 +1146,10 @@
             document.getElementById('resetBtn').addEventListener('click', resetData);
             document.getElementById('addPlayerBtn').addEventListener('click', addNewPlayer);
             document.getElementById('saveBtn').addEventListener('click', saveData);
+            
+            // Скрываем загрузочный экран и показываем основной контент
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
             
             // Слушаем изменения в Firebase в реальном времени
             database.ref('data').on('value', (snapshot) => {
