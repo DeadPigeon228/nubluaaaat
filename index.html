@@ -260,6 +260,11 @@
             animation-fill-mode: both;
             border: 1px solid var(--border-color);
             position: relative;
+            display: none; /* Изначально скрыты */
+        }
+        
+        .player.visible {
+            display: flex; /* Показываем при добавлении */
         }
         
         .player:hover {
@@ -606,19 +611,20 @@
         // Глобальные переменные
         let players = [];
         let isDataLoaded = false;
-        let isLocalChange = false; // Флаг для отслеживания локальных изменений
+        const MAX_PLAYERS = 100; // Максимальное количество игроков
         
-        // Создаем начальные данные для 20 игроков
+        // Создаем начальные данные для игроков
         function createInitialPlayers() {
             const players = [];
-            for (let i = 1; i <= 20; i++) {
+            for (let i = 1; i <= MAX_PLAYERS; i++) {
                 players.push({
                     id: i,
                     name: `Игрок ${i}`,
                     link: "",
                     artifacts: Array(6).fill(null),
                     issued: null,
-                    notes: ""
+                    notes: "",
+                    visible: false // Изначально все игроки скрыты
                 });
             }
             return players;
@@ -633,7 +639,23 @@
                     const data = snapshot.val();
                     
                     if (data && data.players) {
+                        // Загружаем сохраненных игроков
                         players = data.players;
+                        
+                        // Добавляем недостающих игроков (если MAX_PLAYERS увеличили)
+                        while (players.length < MAX_PLAYERS) {
+                            const newId = players.length + 1;
+                            players.push({
+                                id: newId,
+                                name: `Игрок ${newId}`,
+                                link: "",
+                                artifacts: Array(6).fill(null),
+                                issued: null,
+                                notes: "",
+                                visible: false
+                            });
+                        }
+                        
                         document.getElementById('generalNotes').value = data.generalNotes || "";
                         document.getElementById('lastSync').textContent = "данные загружены";
                         console.log("Данные загружены из Firebase");
@@ -665,29 +687,22 @@
             if (!isDataLoaded) return;
             
             const data = {
-                players: players,
+                players: players.filter(p => p.visible), // Сохраняем только видимых игроков
                 generalNotes: document.getElementById('generalNotes').value,
                 timestamp: Date.now()
             };
             
             document.getElementById('lastSync').textContent = "сохранение...";
             
-            // Устанавливаем флаг, что это локальное сохранение
-            isLocalChange = true;
-            
             database.ref('data').set(data)
                 .then(() => {
                     showSyncNotification();
                     document.getElementById('lastSync').textContent = "данные сохранены";
                     console.log("Данные успешно сохранены в Firebase");
-                    
-                    // Сбрасываем флаг после успешного сохранения
-                    setTimeout(() => isLocalChange = false, 1000);
                 })
                 .catch((error) => {
                     console.error("Ошибка сохранения данных:", error);
                     document.getElementById('lastSync').textContent = "ошибка сохранения";
-                    isLocalChange = false;
                 });
         }
         
@@ -701,38 +716,42 @@
             }
         }
         
-        // Добавляем нового игрока
+        // Добавляем нового игрока (делаем его видимым)
         function addNewPlayer() {
-            const newId = players.length > 0 ? Math.max(...players.map(p => p.id)) + 1 : 1;
-            players.push({
-                id: newId,
-                name: `Игрок ${newId}`,
-                link: "",
-                artifacts: Array(6).fill(null),
-                issued: null,
-                notes: ""
-            });
-            renderPlayers();
-            document.getElementById('lastSync').textContent = "не сохранено";
-        }
-        
-        // Удаляем игрока
-        function deletePlayer(playerId) {
-            if (confirm('Вы уверены, что хотите удалить этого игрока?')) {
-                players = players.filter(p => p.id !== playerId);
+            // Находим первого скрытого игрока
+            const hiddenPlayer = players.find(p => !p.visible);
+            
+            if (hiddenPlayer) {
+                hiddenPlayer.visible = true;
                 renderPlayers();
                 document.getElementById('lastSync').textContent = "не сохранено";
+            } else {
+                alert("Достигнуто максимальное количество игроков!");
             }
         }
         
-        // Отрисовываем всех игроков
+        // Удаляем игрока (делаем его невидимым)
+        function deletePlayer(playerId) {
+            if (confirm('Вы уверены, что хотите удалить этого игрока?')) {
+                const player = players.find(p => p.id === playerId);
+                if (player) {
+                    player.visible = false;
+                    renderPlayers();
+                    document.getElementById('lastSync').textContent = "не сохранено";
+                }
+            }
+        }
+        
+        // Отрисовываем всех игроков (только видимых)
         function renderPlayers() {
             const container = document.getElementById('playersContainer');
             container.innerHTML = '';
             
             players.forEach((player) => {
+                if (!player.visible) return;
+                
                 const playerElement = document.createElement('div');
-                playerElement.className = 'player';
+                playerElement.className = 'player visible'; // Добавляем класс visible
                 playerElement.dataset.id = player.id;
                 
                 // Кнопка удаления игрока
@@ -1119,12 +1138,17 @@
             
             // Слушаем изменения в Firebase в реальном времени
             database.ref('data').on('value', (snapshot) => {
-                // Игнорируем обновления, если это локальное изменение
-                if (isLocalChange) return;
-                
                 const data = snapshot.val();
                 if (data) {
-                    players = data.players || createInitialPlayers();
+                    // Обновляем только видимых игроков
+                    const visiblePlayers = players.filter(p => p.visible);
+                    data.players.forEach(savedPlayer => {
+                        const existingPlayer = visiblePlayers.find(p => p.id === savedPlayer.id);
+                        if (existingPlayer) {
+                            Object.assign(existingPlayer, savedPlayer);
+                        }
+                    });
+                    
                     document.getElementById('generalNotes').value = data.generalNotes || '';
                     renderPlayers();
                     document.getElementById('lastSync').textContent = "данные синхронизированы";
