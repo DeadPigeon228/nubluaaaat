@@ -17,6 +17,7 @@
             --success-color: #28a745;
             --danger-color: #dc3545;
             --warning-color: #ffc107;
+            --info-color: #17a2b8;
         }
         
         * {
@@ -123,6 +124,10 @@
             background-color: var(--success-color);
         }
         
+        #saveBtn {
+            background-color: var(--primary-color);
+        }
+        
         button:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.4);
@@ -135,6 +140,12 @@
         .status {
             color: var(--accent-color);
             font-weight: 500;
+        }
+        
+        .sync-status {
+            color: var(--info-color);
+            font-weight: 500;
+            margin-left: 10px;
         }
         
         .artifacts-library {
@@ -360,7 +371,6 @@
             padding: 10px;
         }
         
-        /* Обновленные стили для кнопок "Выдано" */
         .issued-control {
             display: flex;
             align-items: center;
@@ -403,7 +413,6 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         
-        /* Поле заметок */
         .notes-container {
             margin-top: 10px;
         }
@@ -434,7 +443,6 @@
             box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.2);
         }
         
-        /* Общие заметки */
         .general-notes {
             margin-top: 40px;
             padding: 20px;
@@ -462,7 +470,6 @@
             color: white;
         }
         
-        /* Кнопка удаления игрока */
         .player-delete-btn {
             position: absolute;
             top: 10px;
@@ -489,7 +496,6 @@
             background-color: #ff0000;
         }
         
-        /* Drag preview */
         .drag-preview {
             position: fixed;
             pointer-events: none;
@@ -504,28 +510,24 @@
             opacity: 0.9;
         }
         
-        /* Уведомление о синхронизации */
         .sync-notification {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            padding: 12px 20px;
             background-color: var(--success-color);
             color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            transform: translateY(100px);
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            z-index: 1000;
             opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 10000;
+            transition: opacity 0.3s;
         }
         
         .sync-notification.show {
-            transform: translateY(0);
             opacity: 1;
         }
         
-        /* Адаптивность */
         @media (max-width: 1200px) {
             .players-container {
                 grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -559,155 +561,21 @@
         <p class="subtitle">Управление артефактами и опросниками игроков</p>
         
         <div class="survey-link">
-            <a href="https://docs.google.com/spreadsheets/d/17fon-4iQkof8Vf9vr4Cq5vPLV1ODBK5nH4bW77L_i1s/edit?gid=0#gid=0" id="allSurveysLink" target="_blank">-Ссылка на все опросники-</a>
-        </div>
-        <div class="survey-link">
-            <a href="https://docs.google.com/forms/d/1AN6YxirD_OZ2fa9B0SZRX1wF9mMJ5DEL3wi36aaSdMQ/edit" id="allSurveysLink" target="_blank">-Ссылка на опросник-</a>
+            <a href="https://docs.google.com/spreadsheets/d/17fon-4iQkof8Vf9vr4Cq5vPLV1ODBK5nH4bW77L_i1s/edit?gid=0#gid=0" id="allSurveysLink" target="_blank">Ссылка на все опросники</a>
         </div>
         
         <div class="controls">
             <button id="resetBtn"><i class="fas fa-redo"></i> Сбросить все данные</button>
             <button id="addPlayerBtn"><i class="fas fa-plus"></i> Добавить игрока</button>
-            <div class="status">Изменения сохраняются автоматически</div>
+            <button id="saveBtn"><i class="fas fa-save"></i> Сохранить в Firebase</button>
+            <div class="status">Статус: <span id="lastSync" class="sync-status">загрузка...</span></div>
         </div>
         
         <div class="artifacts-library">
             <h3>Библиотека артефактов</h3>
             <p style="text-align: center; margin-bottom: 15px; color: rgba(255,255,255,0.6);">Перетащите артефакты в слоты игроков</p>
             <div class="artifacts-grid" id="artifactsGrid">
-                <!-- Артефакты с 1 по 44 -->
-                <div class="artifact" data-id="1" draggable="true" style="background-image: url('https://sun9-47.userapi.com/s/v1/ig2/JC3570oSpPL1HYoIDBplPIMTyVRJhO6Pp6NgT9h8HOg8FQo8v3BxgZDaXwaZSX6TVZhMJXkBs-bP3YI6gXY2uwX1.jpg?quality=95&as=32x33,48x49,72x73,99x101&from=bu&cs=99x0')">
-                    <div class="artifact-number">1</div>
-                </div>
-                <div class="artifact" data-id="2" draggable="true" style="background-image: url('https://sun9-26.userapi.com/s/v1/ig2/sa4Dr0McRpWt1_N5Xwv8U10pmTezQipS6sVsAPM6UAZfkCVO6eA2u4L-_RBB3dJyDEoMy5CWCupkFy4N_Bhqehdb.jpg?quality=95&as=32x32,48x48,72x73,97x98&from=bu&cs=97x0')">
-                    <div class="artifact-number">2</div>
-                </div>
-                <div class="artifact" data-id="3" draggable="true" style="background-image: url('https://sun9-15.userapi.com/s/v1/ig2/nzma3lxpEQad9zDo3uzgg-1osQ2I8xSznJ4fkbzRn5uTLSVhVuZX7s2UrxZTmngdV4pZmkl7K27LIKyJbjVcyMfL.jpg?quality=95&as=32x32,48x48,72x71,101x100&from=bu&cs=101x0')">
-                    <div class="artifact-number">3</div>
-                </div>
-                <div class="artifact" data-id="4" draggable="true" style="background-image: url('https://sun9-60.userapi.com/s/v1/ig2/ycH2ZB1ofZ984RdJFHnzZqq2LwXKhKw8HlHrp0YlNtwYvpHOZKz0phAUT21k9dD4ZaruG32ShA-3pON6z98xogi-.jpg?quality=95&as=32x32,48x48,72x73,99x100&from=bu&cs=99x0')">
-                    <div class="artifact-number">4</div>
-                </div>
-                <div class="artifact" data-id="5" draggable="true" style="background-image: url('https://sun9-63.userapi.com/s/v1/ig2/t2w85zCjnQr7uPlN4ugM0z8lqCIvLtA-HxMsxUnPvLW324qXcp0NlCt2xFaVF_qfPTlVbPYEIfZLZDFXYKJBx6fA.jpg?quality=95&as=32x32,48x48,72x71,99x98&from=bu&cs=99x0')">
-                    <div class="artifact-number">5</div>
-                </div>
-                <div class="artifact" data-id="6" draggable="true" style="background-image: url('https://sun9-56.userapi.com/s/v1/ig2/Bi0qX1WC6dCZY_hMz0qBt5ruRBtOZ_eeCU7mX690en-mxITcBwglLUKWdtP9KJRZ8p0aSBzdYjMBkKXHEntHEc8-.jpg?quality=95&as=32x32,48x48,72x72,100x100&from=bu&cs=100x0')">
-                    <div class="artifact-number">6</div>
-                </div>
-                <div class="artifact" data-id="7" draggable="true" style="background-image: url('https://sun9-80.userapi.com/s/v1/ig2/Dio5koknDadPMzWhfZg-e_1F-1PD_7-w-IIIP1x8fgdqoKSnnjABSmD-geAHkgu3913TSSuDa2IavVhlAFg3TpkP.jpg?quality=95&as=32x33,48x49,72x73,100x102&from=bu&cs=100x0')">
-                    <div class="artifact-number">7</div>
-                </div>
-                <div class="artifact" data-id="8" draggable="true" style="background-image: url('https://sun9-6.userapi.com/s/v1/ig2/obB3KTwSJkqgUpUEqE0z-vu5aJrF7nnqk18llh_RhvLX54elMeZI81AwgWng7eyRF3an_AvlZUtBg17fWmEoxAFm.jpg?quality=95&as=32x32,48x48,72x71,100x99&from=bu&cs=100x0')">
-                    <div class="artifact-number">8</div>
-                </div>
-                <div class="artifact" data-id="9" draggable="true" style="background-image: url('https://sun9-39.userapi.com/s/v1/ig2/nQap0AfWHGgx3gvcrj9mwboE24wVNw31Za7GEXqr0tsVgXBaSkEvGNK5I3UECgUXs7QVjw3ORfgKVmXur5_U-N59.jpg?quality=95&as=32x33,48x49,72x74,96x99&from=bu&cs=96x0')">
-                    <div class="artifact-number">9</div>
-                </div>
-                <div class="artifact" data-id="10" draggable="true" style="background-image: url('https://sun9-81.userapi.com/s/v1/ig2/QJNcJ6D6PoN_8z35fTK4KkvH2aPLRf6zkoq4Se-J5H6vKWC-OnkhaDxXhsucaGNgwkZ15cuY9tL11Y5IJ4RiK0e5.jpg?quality=95&as=32x33,48x49,72x73,98x100&from=bu&cs=98x0')">
-                    <div class="artifact-number">10</div>
-                </div>
-                <div class="artifact" data-id="11" draggable="true" style="background-image: url('https://sun9-65.userapi.com/s/v1/if2/tvXNQxsK06HhGbMzyX7sQRZSPpc1beut84Lc4MjW21eqcujJT2YcA9imY3msMUROy_AhtdoXlJ5KTDT11BfCBN2z.jpg?quality=95&as=32x31,48x46,72x69,99x95&from=bu&cs=99x0')">
-                    <div class="artifact-number">11</div>
-                </div>
-                <div class="artifact" data-id="12" draggable="true" style="background-image: url('https://sun9-83.userapi.com/s/v1/if2/fJARL42yfKdH-w2vVuo_VHmJZ1bIg8tYTamlmlrLUGHJsCYjlqcTffdEsK7GgiAax5IYnorGdJCx7UvDmZWukbW0.jpg?quality=95&as=32x31,48x47,72x71,101x99&from=bu&cs=101x0')">
-                    <div class="artifact-number">12</div>
-                </div>
-                <div class="artifact" data-id="13" draggable="true" style="background-image: url('https://sun9-37.userapi.com/s/v1/ig2/0QOIwSwTg7Z94Bk7YSev34EVk_a86_itlusDnq8V-tdilFfBUsKMkUeB_z9JJCIEVx8W-dyp6Kuo-vUgm2M6OhdQ.jpg?quality=95&as=32x32,48x48,72x71,101x100&from=bu&cs=101x0')">
-                    <div class="artifact-number">13</div>
-                </div>
-                <div class="artifact" data-id="14" draggable="true" style="background-image: url('https://sun9-88.userapi.com/s/v1/if2/IxBPGcwFS6CW03EXydqvdGYkLFw1Hlzp0B3rFHSn7XWwes0pebHBRR3sBLyDx7hQi07n9V6ihuwKqWDB2KWAcq56.jpg?quality=95&as=32x31,48x47,72x71,100x98&from=bu&cs=100x0')">
-                    <div class="artifact-number">14</div>
-                </div>
-                <div class="artifact" data-id="15" draggable="true" style="background-image: url('https://sun9-59.userapi.com/s/v1/ig2/zEfnTBfRunEa1R8p69V28oS6slzmtjCSxpA7YQaLHbomIonnm1U49bifup1-axNPfFRMnien2SNO04DrDRd_YG3n.jpg?quality=95&as=32x32,48x48,72x71,101x100&from=bu&cs=101x0')">
-                    <div class="artifact-number">15</div>
-                </div>
-                <div class="artifact" data-id="16" draggable="true" style="background-image: url('https://sun9-69.userapi.com/s/v1/if2/HacI0r2Sc1y4uTQyFUm2Zt1hpg-p3aRiDhQRjfOG-yzDy4McJuW9RKuGnSi1eXEYCpHi8-2uEMthGCbfY1xcG5EG.jpg?quality=95&as=32x31,48x47,72x71,101x99&from=bu&cs=101x0')">
-                    <div class="artifact-number">16</div>
-                </div>
-                <div class="artifact" data-id="17" draggable="true" style="background-image: url('https://sun9-47.userapi.com/s/v1/ig2/tNz0e7J4nOxdHWl4gm2jB1dPUBkWh2Wc__y_38jab_YJUtrkBADTMhuhSpUDTeZAdMXwZXG00ay_UOXKGIJKZtT8.jpg?quality=95&as=32x32,48x48,72x71,102x101&from=bu&cs=102x0')">
-                    <div class="artifact-number">17</div>
-                </div>
-                <div class="artifact" data-id="18" draggable="true" style="background-image: url('https://sun9-27.userapi.com/s/v1/ig2/zPhID8iJqsqMQ1AWRmb21E8OCfEFvKlpMHOdQIa2WU5EI-wcufENUG39IIVUTkUZPXOqPjcsT0xlH3YLWCC5Odlm.jpg?quality=95&as=32x32,48x48,72x72,98x98&from=bu&cs=98x0')">
-                    <div class="artifact-number">18</div>
-                </div>
-                <div class="artifact" data-id="19" draggable="true" style="background-image: url('https://sun9-22.userapi.com/s/v1/ig2/1YkZupN_H7b8X6h97sg6XUEjOoZU_m02CjOQmu8Ih3lW4C13gj3IJd6fj3Sy_45y8UZqS3a1KMssp4uUN0_cRNly.jpg?quality=95&as=32x32,48x48,72x73,102x103&from=bu&cs=102x0')">
-                    <div class="artifact-number">19</div>
-                </div>
-                <div class="artifact" data-id="20" draggable="true" style="background-image: url('https://sun9-87.userapi.com/s/v1/ig2/kFJmPl7HgCMZwEzXbqR3ZZQF-BvCjeaIoIx0fcxqkgGwlbJcU-2KkO7snwfe-3rtIQsb89Mnho3Kem0Y08fM0crD.jpg?quality=95&as=32x32,48x48,72x71,102x101&from=bu&cs=102x0')">
-                    <div class="artifact-number">20</div>
-                </div>
-                <div class="artifact" data-id="21" draggable="true" style="background-image: url('https://sun9-80.userapi.com/s/v1/if2/v-9rwHumQmeoxEFyqrLEh4-_kESNLlpOt5Exei-AUamjVeTRQoQOryxNTiDf_xB800LaRTttX5mfGV_1MlJYNXPJ.jpg?quality=95&as=32x31,48x47,72x71,103x101&from=bu&cs=103x0')">
-                    <div class="artifact-number">21</div>
-                </div>
-                <div class="artifact" data-id="22" draggable="true" style="background-image: url('https://sun9-14.userapi.com/s/v1/if2/iVa1D8E8c_zfLRZPaX8DXPuKyaJei3RswPCp5LrHehau0rw0H_1Dkto9jy7If7XCzg4AgwdD-8j2cGBYltcaq6IX.jpg?quality=95&as=32x31,48x46,72x69,104x100&from=bu&cs=104x0')">
-                    <div class="artifact-number">22</div>
-                </div>
-                <div class="artifact" data-id="23" draggable="true" style="background-image: url('https://sun9-38.userapi.com/s/v1/ig2/8S60OqM4FCEpwcpWug4aZLOJiwmwg9P8x5gGm04V3RRMBBGHSXoH-XjN5gSRPYX6B5c4-fQwbGxpPUpVHgRPGVjk.jpg?quality=95&as=32x32,48x48,72x72,99x99&from=bu&cs=99x0')">
-                    <div class="artifact-number">23</div>
-                </div>
-                <div class="artifact" data-id="24" draggable="true" style="background-image: url('https://sun9-87.userapi.com/s/v1/if2/JxZT6p-VSOcH79Z7_9_slTiIrXnZs321yNXCHfBYB9uwl2T6J6Pd_yy3VL7f-Q_zJw1Hn2zAlMSaousPlfFBLCH4.jpg?quality=95&as=32x31,48x47,72x71,101x99&from=bu&cs=101x0')">
-                    <div class="artifact-number">24</div>
-                </div>
-                <div class="artifact" data-id="25" draggable="true" style="background-image: url('https://sun9-15.userapi.com/s/v1/if2/IoBXiY1fgH7p9G2B4Z9OU_e2m9fG-Sxu54lLfhBotv-2507F53HbS4CPxaihulrMbQB6CAPhGVqOU-4Dx-JBXKf1.jpg?quality=95&as=32x31,48x47,72x70,103x100&from=bu&cs=103x0')">
-                    <div class="artifact-number">25</div>
-                </div>
-                <div class="artifact" data-id="26" draggable="true" style="background-image: url('https://sun9-47.userapi.com/s/v1/ig2/cD_HqJ-insiLjEQgTxeylZUxEMTBl_gs40t1ryQvNN8i4fgXhX5b_3F9Vw5CRAdq-cnNEq5vt-RCRhiwtVB7q5Tl.jpg?quality=95&as=32x32,48x48,72x73,98x99&from=bu&cs=98x0')">
-                    <div class="artifact-number">26</div>
-                </div>
-                <div class="artifact" data-id="27" draggable="true" style="background-image: url('https://sun9-65.userapi.com/s/v1/ig2/Yy4PMjaiqpEPsN6LU7e_s-5y22hlpEcLh7mE6SobvD9dlLiwsurq7DvZpUt59_mhkRGM23rk5VQgWYwEEdqUrcju.jpg?quality=95&as=32x33,48x50,72x75,94x98&from=bu&cs=94x0')">
-                    <div class="artifact-number">27</div>
-                </div>
-                <div class="artifact" data-id="28" draggable="true" style="background-image: url('https://sun9-41.userapi.com/s/v1/ig2/sELLguRe5wgEBhnE8UMRgXcJfMxFrQf_RY7ceTYp4Qw8YZ8_vB91TQrtummOpDz0t5vgaduq8cS50s0gGZssw1ht.jpg?quality=95&as=32x32,48x48,72x72,99x99&from=bu&cs=99x0')">
-                    <div class="artifact-number">28</div>
-                </div>
-                <div class="artifact" data-id="29" draggable="true" style="background-image: url('https://sun9-82.userapi.com/s/v1/if2/OpmVdW9BA4Ej7REcqHY4T3ie6X8r2s-GJhk1pMbWWC9iPXvve6E5-9Ei0m3dC_5TmDqM2jBRNwxFHA98k-T_AdsN.jpg?quality=95&as=32x31,48x47,72x70,102x99&from=bu&cs=102x0')">
-                    <div class="artifact-number">29</div>
-                </div>
-                <div class="artifact" data-id="30" draggable="true" style="background-image: url('https://sun9-11.userapi.com/s/v1/if2/lT18tebHxtzPQYbAaNzsF7piVQ2Z-FFMVDxdeK6zBtZq0k2rxaPNzr0L5JYYReg1tErOICNSjosmbA3aPRDTDyxB.jpg?quality=95&as=32x31,48x47,72x71,102x100&from=bu&cs=102x0')">
-                    <div class="artifact-number">30</div>
-                </div>
-                <div class="artifact" data-id="31" draggable="true" style="background-image: url('https://sun9-33.userapi.com/s/v1/if2/_BcSAK9KkO2F9jeWR1e4YKSmfGe4CwkT0hMbwzw9bdHPw1Ltgb8Pc1OA6BsQLoTHjpjlMV4OGRZx6TtkbMTRBmye.jpg?quality=95&as=32x31,48x47,72x70,103x100&from=bu&cs=103x0')">
-                    <div class="artifact-number">31</div>
-                </div>
-                <div class="artifact" data-id="32" draggable="true" style="background-image: url('https://sun9-50.userapi.com/s/v1/ig2/3rTdIuYDmDOyq8rCEL3xiFhCw2I9zzSCUsptKORIC22HyTiJOEyPf-6w-mdhJOFdR7-LpKLEfCMz51XalXeaTYxy.jpg?quality=95&as=32x32,48x48,72x71,102x101&from=bu&cs=102x0')">
-                    <div class="artifact-number">32</div>
-                </div>
-                <div class="artifact" data-id="33" draggable="true" style="background-image: url('https://sun9-77.userapi.com/s/v1/if2/lxZ0TRGO0L5zackonyM4MJDF1T5M-9AEjTCj_S6n2iqktBF5I5kJiFIPPdo6cxxD6jSKy4zYIGCH0_XHBJqLgonI.jpg?quality=95&as=32x31,48x47,72x71,102x100&from=bu&cs=102x0')">
-                    <div class="artifact-number">33</div>
-                </div>
-                <div class="artifact" data-id="34" draggable="true" style="background-image: url('https://sun9-63.userapi.com/s/v1/if2/TTosRuvQKjwq8BYNozDkJ85IUz91uTUFI_eiCq5COHcqh_z5Z-AMa9MOa_hhyGPofsyoAswpVDkIaQUqpTx7334k.jpg?quality=95&as=32x30,48x45,72x67,102x95&from=bu&cs=102x0')">
-                    <div class="artifact-number">34</div>
-                </div>
-                <div class="artifact" data-id="35" draggable="true" style="background-image: url('https://sun9-86.userapi.com/s/v1/ig2/Ucl5aJLqueAhJgh4_2esJvdvcRrWoQIGD3GS9ZhEOGx9Yi5Hp4DeG8B7cEV2Y5hjP9sV7jTkv9nI8K_5vTq-Dphb.jpg?quality=95&as=32x33,48x49,72x74,98x101&from=bu&cs=98x0')">
-                    <div class="artifact-number">35</div>
-                </div>
-                <div class="artifact" data-id="36" draggable="true" style="background-image: url('https://sun9-83.userapi.com/s/v1/if2/69aT-qET5ZFS_-9z59eLAOriL0-x43WvZ4G_PB2Id88ExtvxiJDvL40MqA1FjYtvJDyIlVkrt14_6_00lj6Mo0FB.jpg?quality=95&as=32x31,48x46,72x70,95x92&from=bu&cs=95x0')">
-                    <div class="artifact-number">36</div>
-                </div>
-                <div class="artifact" data-id="37" draggable="true" style="background-image: url('https://sun9-85.userapi.com/s/v1/if2/-5zaotEm7iSwOM_lz0BKBqOiNwzZrtI-3Y2F7Kp3Th7OsaWPUS6SJGqsIjcJV8K1twwAM_k2QKuKrn88Uk4CkXOI.jpg?quality=95&as=32x29,48x44,72x66,99x91&from=bu&cs=99x0')">
-                    <div class="artifact-number">37</div>
-                </div>
-                <div class="artifact" data-id="38" draggable="true" style="background-image: url('https://sun9-84.userapi.com/s/v1/if2/vepPqt1HhOKuDwGWzydU3615XHC5HFGQu_RLOzb81URMZZMdIFWYILrdZ9fcnX0C1VGGqIAjfw5zaYctiy5nvHga.jpg?quality=95&as=32x30,48x45,72x67,100x93&from=bu&cs=100x0')">
-                    <div class="artifact-number">38</div>
-                </div>
-                <div class="artifact" data-id="39" draggable="true" style="background-image: url('https://sun9-7.userapi.com/s/v1/if2/VU5-KjNoLzjIxzWle3Ki0LdFVwGfpHB7W-Y9SwE-Y_puPicDsR2-tlsvoFuhsf_oAkdfZV2MX--3bwOzgvpJ-ZYR.jpg?quality=95&as=32x29,48x44,72x66,102x94&from=bu&cs=102x0')">
-                    <div class="artifact-number">39</div>
-                </div>
-                <div class="artifact" data-id="40" draggable="true" style="background-image: url('https://sun9-37.userapi.com/s/v1/if2/TYgs1LBtDEDjAUu4p-YACPrc1Fh7A1mNvK8bZAiDa_iZseaADxAXJNL873YQtrlGlAQ_dvIVmtfHzpOyc1AQEw5n.jpg?quality=95&as=32x31,48x47,72x70,96x94&from=bu&cs=96x0')">
-                    <div class="artifact-number">40</div>
-                </div>
-                <div class="artifact" data-id="41" draggable="true" style="background-image: url('https://sun9-51.userapi.com/s/v1/if2/DTs91ao7ZrWdgZSsl3nEKokP0IdYf9Y0YK9Uk8pB5bF0H5aRjbVhlsrWQ-3ilhAsfJHKmfnlIhUNWXzD68Qrebo2.jpg?quality=95&as=32x29,48x44,72x66,101x93&from=bu&cs=101x0')">
-                    <div class="artifact-number">41</div>
-                </div>
-                <div class="artifact" data-id="42" draggable="true" style="background-image: url('https://sun9-37.userapi.com/s/v1/if2/Xox6zk2EZhrnPBXwqRYy9u7VDlkpnN7gONZ02x0Yiagj9psDHpKdXFBxHxXAlrcXvEzHhhSpl2SVi123gYOs2vJ3.jpg?quality=95&as=32x30,48x45,72x68,100x94&from=bu&cs=100x0')">
-                    <div class="artifact-number">42</div>
-                </div>
-                <div class="artifact" data-id="43" draggable="true" style="background-image: url('https://sun9-41.userapi.com/s/v1/if2/pxcco1nqLUqfNtekdkhTVRkUwYV3OsZODmENp89VJ1R20UjhjXXC5kP3EldafktZGw0RocQq21YhaqllqcGnMB89.jpg?quality=95&as=32x29,48x44,72x66,101x93&from=bu&cs=101x0')">
-                    <div class="artifact-number">43</div>
-                </div>
-                <div class="artifact" data-id="44" draggable="true" style="background-image: url('https://sun9-67.userapi.com/s/v1/if2/wrC3Q5SgbWC_x5QTduUWlNOHAXvjMi60PlJNSDKABDOr_3fuBM-F3XIuKPNm9NfG2uamsbbitC66u33ysf7XaeEv.jpg?quality=95&as=32x31,48x47,72x70,97x94&from=bu&cs=97x0')">
-                    <div class="artifact-number">44</div>
-                </div>
+                <!-- Артефакты с 1 по 44 будут добавлены скриптом -->
             </div>
         </div>
         
@@ -719,675 +587,539 @@
         </div>
     </div>
 
-    <!-- Уведомление о синхронизации -->
-    <div id="syncNotification" class="sync-notification"></div>
+    <div class="sync-notification" id="syncNotification">Данные сохранены в Firebase!</div>
 
-   <script>
-        // Проверяем, загрузились ли необходимые скрипты
-        if (!window.firebase || !firebase.database) {
-            console.error('Firebase SDK не загрузился!');
-            alert('Ошибка загрузки Firebase SDK. Пожалуйста, проверьте подключение к интернету.');
-        }
-
-        try {
-            // Инициализация Firebase
-            const firebaseConfig = {
-                databaseURL: "https://artefacts-46779-default-rtdb.asia-southeast1.firebasedatabase.app/"
-            };
-            
-            // Инициализируем Firebase
-            firebase.initializeApp(firebaseConfig);
-            const database = firebase.database();
-            
-            // Ключи для localStorage
-            const STORAGE_KEY = 'playersArtifactsSystem_v8';
-            const GENERAL_NOTES_KEY = 'generalNotes_v4';
-            const LAST_SYNC_KEY = 'lastSync_v4';
-            const TIMESTAMP_KEY = 'lastUpdateTimestamp_v3';
-            
-            // Создаем начальные данные для 20 игроков
-            function createInitialPlayers() {
-                const players = [];
-                for (let i = 1; i <= 20; i++) {
-                    players.push({
-                        id: i,
-                        name: "",
-                        link: "",
-                        artifacts: Array(6).fill(null),
-                        issued: null,
-                        notes: ""
-                    });
-                }
-                return players;
-            }
-            
-            // Загружаем данные из localStorage или создаем начальные
-            function loadData() {
-                try {
-                    const generalNotes = localStorage.getItem(GENERAL_NOTES_KEY) || "";
-                    document.getElementById('generalNotes').value = generalNotes;
-                    
-                    const lastSync = localStorage.getItem(LAST_SYNC_KEY);
-                    if (lastSync) {
-                        document.getElementById('lastSync').textContent = `Последняя синхронизация: ${lastSync}`;
-                    }
-                    
-                    const savedData = localStorage.getItem(STORAGE_KEY);
-                    if (savedData) {
-                        return JSON.parse(savedData);
-                    }
-                    return createInitialPlayers();
-                } catch (e) {
-                    console.error('Ошибка загрузки данных:', e);
-                    return createInitialPlayers();
-                }
-            }
-            
-            // Сохраняем текущие данные
-            function saveData() {
-                try {
-                    const data = {
-                        players: players,
-                        generalNotes: document.getElementById('generalNotes').value,
-                        timestamp: Date.now()
-                    };
-                    
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
-                    localStorage.setItem(GENERAL_NOTES_KEY, document.getElementById('generalNotes').value);
-                    
-                    // Устанавливаем метку времени обновления
-                    const timestamp = Date.now().toString();
-                    localStorage.setItem(TIMESTAMP_KEY, timestamp);
-                    
-                    updateLastSyncTime();
-                    
-                    // Сохраняем данные в Firebase
-                    database.ref('data').set(data).catch(e => {
-                        console.error('Ошибка сохранения в Firebase:', e);
-                    });
-                } catch (e) {
-                    console.error('Ошибка сохранения данных:', e);
-                }
-            }
-            
-            // Обновляем время последней синхронизации
-            function updateLastSyncTime() {
-                const now = new Date();
-                const formattedTime = now.toLocaleString('ru-RU', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
-                localStorage.setItem(LAST_SYNC_KEY, formattedTime);
-                document.getElementById('lastSync').textContent = `Последняя синхронизация: ${formattedTime}`;
-            }
-            
-            // Сбрасываем все данные
-            function resetData() {
-                if (confirm('Вы уверены, что хотите сбросить ВСЕ данные? Все ники, артефакты и заметки будут удалены.')) {
-                    players = createInitialPlayers();
-                    localStorage.removeItem(STORAGE_KEY);
-                    localStorage.removeItem(GENERAL_NOTES_KEY);
-                    localStorage.removeItem(LAST_SYNC_KEY);
-                    localStorage.removeItem(TIMESTAMP_KEY);
-                    document.getElementById('generalNotes').value = "";
-                    document.getElementById('lastSync').textContent = "";
-                    renderPlayers();
-                    
-                    // Синхронизируем сброс с Firebase
-                    database.ref('data').set({
-                        players: players,
-                        generalNotes: "",
-                        timestamp: Date.now()
-                    }).catch(e => {
-                        console.error('Ошибка сброса данных в Firebase:', e);
-                    });
-                }
-            }
-            
-            // Добавляем нового игрока
-            function addNewPlayer() {
-                const newId = players.length > 0 ? Math.max(...players.map(p => p.id)) + 1 : 1;
+    <!-- Подключаем Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <script>
+        // Инициализация Firebase
+        const firebaseConfig = {
+            databaseURL: "https://artefacts-46779-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        };
+        
+        // Инициализируем Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        // Глобальные переменные
+        let players = [];
+        let isDataLoaded = false;
+        
+        // Создаем начальные данные для 20 игроков
+        function createInitialPlayers() {
+            const players = [];
+            for (let i = 1; i <= 20; i++) {
                 players.push({
-                    id: newId,
-                    name: "",
+                    id: i,
+                    name: `Игрок ${i}`,
                     link: "",
                     artifacts: Array(6).fill(null),
                     issued: null,
                     notes: ""
                 });
-                saveData();
-                renderPlayers();
             }
+            return players;
+        }
+        
+        // Загружаем данные из Firebase
+        function loadData() {
+            document.getElementById('lastSync').textContent = "загрузка...";
             
-            // Удаляем игрока
-            function deletePlayer(playerId) {
-                if (confirm('Вы уверены, что хотите удалить этого игрока?')) {
-                    players = players.filter(p => p.id !== playerId);
-                    saveData();
-                    renderPlayers();
-                }
-            }
-            
-            // Отрисовываем всех игроков
-            function renderPlayers() {
-                try {
-                    const container = document.getElementById('playersContainer');
-                    if (!container) {
-                        console.error('Контейнер игроков не найден!');
-                        return;
-                    }
-                    container.innerHTML = '';
+            return new Promise((resolve) => {
+                database.ref('data').once('value').then((snapshot) => {
+                    const data = snapshot.val();
                     
-                    players.forEach((player) => {
-                        const playerElement = document.createElement('div');
-                        playerElement.className = 'player';
-                        playerElement.dataset.id = player.id;
-                        
-                        // Кнопка удаления игрока
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.className = 'player-delete-btn';
-                        deleteBtn.innerHTML = '×';
-                        deleteBtn.title = 'Удалить игрока';
-                        deleteBtn.addEventListener('click', () => deletePlayer(player.id));
-                        playerElement.appendChild(deleteBtn);
-                        
-                        // Шапка с ником и ссылкой
-                        const header = document.createElement('div');
-                        header.className = 'player-header';
-                        
-                        const nameInput = document.createElement('input');
-                        nameInput.className = 'player-name-input';
-                        nameInput.type = 'text';
-                        nameInput.placeholder = 'Введите ник игрока';
-                        nameInput.value = player.name;
-                        nameInput.addEventListener('input', (e) => {
-                            player.name = e.target.value;
-                            updatePlayerLink(player);
-                            saveData();
-                        });
-                        
-                        const linkContainer = document.createElement('div');
-                        linkContainer.className = 'player-link-container';
-                        
-                        const linkInput = document.createElement('input');
-                        linkInput.className = 'player-link-input';
-                        linkInput.type = 'text';
-                        linkInput.placeholder = 'Ссылка на опросник';
-                        linkInput.value = player.link;
-                        linkInput.addEventListener('input', (e) => {
-                            player.link = e.target.value;
-                            saveData();
-                        });
-                        
-                        const link = document.createElement('a');
-                        link.className = 'player-link';
-                        link.href = player.link;
-                        link.target = '_blank';
-                        link.innerHTML = '<span class="player-link-icon">🔗</span> Перейти';
-                        
-                        linkContainer.appendChild(linkInput);
-                        linkContainer.appendChild(link);
-                        
-                        header.appendChild(nameInput);
-                        header.appendChild(linkContainer);
-                        playerElement.appendChild(header);
-                        
-                        // Слоты для артефактов
-                        const artifactsContainer = document.createElement('div');
-                        artifactsContainer.className = 'player-artifacts';
-                        
-                        for (let i = 0; i < 6; i++) {
-                            const slot = document.createElement('div');
-                            slot.className = 'artifact-slot';
-                            slot.dataset.playerId = player.id;
-                            slot.dataset.slot = i;
-                            
-                            if (player.artifacts[i]) {
-                                const artifact = createArtifactElement(player.artifacts[i]);
-                                artifact.classList.add('artifact-added');
-                                slot.appendChild(artifact);
-                            } else {
-                                const empty = document.createElement('div');
-                                empty.className = 'empty-slot';
-                                empty.textContent = 'Перетащите артефакт';
-                                slot.appendChild(empty);
-                            }
-                            
-                            // Добавляем обработчики событий перетаскивания
-                            slot.addEventListener('dragover', dragOver);
-                            slot.addEventListener('dragenter', dragEnter);
-                            slot.addEventListener('dragleave', dragLeave);
-                            slot.addEventListener('drop', drop);
-                            
-                            artifactsContainer.appendChild(slot);
-                        }
-                        
-                        playerElement.appendChild(artifactsContainer);
-                        
-                        // Контроль выдачи
-                        const issuedControl = document.createElement('div');
-                        issuedControl.className = 'issued-control';
-                        
-                        const issuedLabel = document.createElement('div');
-                        issuedLabel.className = 'issued-label';
-                        issuedLabel.textContent = 'Выдано?';
-                        
-                        const issuedButtons = document.createElement('div');
-                        issuedButtons.className = 'issued-buttons';
-                        
-                        const yesBtn = document.createElement('button');
-                        yesBtn.className = `issued-btn issued-btn-yes ${player.issued === true ? 'active' : ''}`;
-                        yesBtn.textContent = 'Да';
-                        yesBtn.addEventListener('click', () => {
-                            player.issued = true;
-                            saveData();
-                            renderPlayers(); // Перерисовываем для обновления состояния кнопок
-                        });
-                        
-                        const noBtn = document.createElement('button');
-                        noBtn.className = `issued-btn issued-btn-no ${player.issued === false ? 'active' : ''}`;
-                        noBtn.textContent = 'Нет';
-                        noBtn.addEventListener('click', () => {
-                            player.issued = false;
-                            saveData();
-                            renderPlayers(); // Перерисовываем для обновления состояния кнопок
-                        });
-                        
-                        issuedButtons.appendChild(yesBtn);
-                        issuedButtons.appendChild(noBtn);
-                        
-                        issuedControl.appendChild(issuedLabel);
-                        issuedControl.appendChild(issuedButtons);
-                        playerElement.appendChild(issuedControl);
-                        
-                        // Поле для заметок
-                        const notesContainer = document.createElement('div');
-                        notesContainer.className = 'notes-container';
-                        
-                        const notesLabel = document.createElement('label');
-                        notesLabel.className = 'notes-label';
-                        notesLabel.textContent = 'Заметки:';
-                        notesLabel.htmlFor = `notes-${player.id}`;
-                        
-                        const notesInput = document.createElement('textarea');
-                        notesInput.className = 'notes-input';
-                        notesInput.id = `notes-${player.id}`;
-                        notesInput.placeholder = 'Введите заметки для этого игрока...';
-                        notesInput.value = player.notes || '';
-                        notesInput.addEventListener('input', (e) => {
-                            player.notes = e.target.value;
-                            saveData();
-                        });
-                        
-                        notesContainer.appendChild(notesLabel);
-                        notesContainer.appendChild(notesInput);
-                        playerElement.appendChild(notesContainer);
-                        
-                        container.appendChild(playerElement);
-                    });
-                } catch (e) {
-                    console.error('Ошибка при отрисовке игроков:', e);
-                }
-            }
+                    if (data && data.players) {
+                        players = data.players;
+                        document.getElementById('generalNotes').value = data.generalNotes || "";
+                        document.getElementById('lastSync').textContent = "данные загружены";
+                        console.log("Данные загружены из Firebase");
+                    } else {
+                        // Если данных нет, создаем начальные
+                        players = createInitialPlayers();
+                        document.getElementById('lastSync').textContent = "созданы начальные данные";
+                        console.log("Созданы начальные данные");
+                        // Сохраняем начальные данные
+                        saveData();
+                    }
+                    
+                    isDataLoaded = true;
+                    renderPlayers();
+                    resolve();
+                }).catch((error) => {
+                    console.error("Ошибка загрузки данных:", error);
+                    players = createInitialPlayers();
+                    document.getElementById('lastSync').textContent = "ошибка загрузки";
+                    isDataLoaded = true;
+                    renderPlayers();
+                    resolve();
+                });
+            });
+        }
+        
+        // Сохраняем данные в Firebase
+        function saveData() {
+            if (!isDataLoaded) return;
             
-            // Создаем элемент артефакта
-            function createArtifactElement(artifactId) {
-                const artifact = document.createElement('div');
-                artifact.className = 'artifact';
-                artifact.dataset.id = artifactId;
-                artifact.draggable = true;
+            const data = {
+                players: players,
+                generalNotes: document.getElementById('generalNotes').value,
+                timestamp: Date.now()
+            };
+            
+            document.getElementById('lastSync').textContent = "сохранение...";
+            
+            database.ref('data').set(data)
+                .then(() => {
+                    showSyncNotification();
+                    document.getElementById('lastSync').textContent = "данные сохранены";
+                    console.log("Данные успешно сохранены в Firebase");
+                })
+                .catch((error) => {
+                    console.error("Ошибка сохранения данных:", error);
+                    document.getElementById('lastSync').textContent = "ошибка сохранения";
+                });
+        }
+        
+        // Сбрасываем все данные
+        function resetData() {
+            if (confirm('Вы уверены, что хотите сбросить ВСЕ данные? Все ники, артефакты и заметки будут удалены.')) {
+                players = createInitialPlayers();
+                document.getElementById('generalNotes').value = "";
+                renderPlayers();
+                saveData();
+            }
+        }
+        
+        // Добавляем нового игрока
+        function addNewPlayer() {
+            const newId = players.length > 0 ? Math.max(...players.map(p => p.id)) + 1 : 1;
+            players.push({
+                id: newId,
+                name: `Игрок ${newId}`,
+                link: "",
+                artifacts: Array(6).fill(null),
+                issued: null,
+                notes: ""
+            });
+            renderPlayers();
+            document.getElementById('lastSync').textContent = "не сохранено";
+        }
+        
+        // Удаляем игрока
+        function deletePlayer(playerId) {
+            if (confirm('Вы уверены, что хотите удалить этого игрока?')) {
+                players = players.filter(p => p.id !== playerId);
+                renderPlayers();
+                document.getElementById('lastSync').textContent = "не сохранено";
+            }
+        }
+        
+        // Отрисовываем всех игроков
+        function renderPlayers() {
+            const container = document.getElementById('playersContainer');
+            container.innerHTML = '';
+            
+            players.forEach((player) => {
+                const playerElement = document.createElement('div');
+                playerElement.className = 'player';
+                playerElement.dataset.id = player.id;
                 
-                // Устанавливаем картинку (будет добавлена позже)
-                artifact.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                // Кнопка удаления игрока
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'player-delete-btn';
+                deleteBtn.innerHTML = '×';
+                deleteBtn.title = 'Удалить игрока';
+                deleteBtn.addEventListener('click', () => deletePlayer(player.id));
+                playerElement.appendChild(deleteBtn);
                 
-                const number = document.createElement('div');
-                number.className = 'artifact-number';
-                number.textContent = artifactId;
+                // Шапка с ником и ссылкой
+                const header = document.createElement('div');
+                header.className = 'player-header';
                 
-                const removeBtn = document.createElement('div');
-                removeBtn.className = 'artifact-remove';
-                removeBtn.textContent = '×';
-                removeBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    removeArtifact(artifact);
+                const nameInput = document.createElement('input');
+                nameInput.className = 'player-name-input';
+                nameInput.type = 'text';
+                nameInput.placeholder = 'Введите ник игрока';
+                nameInput.value = player.name;
+                nameInput.addEventListener('input', (e) => {
+                    player.name = e.target.value;
+                    updatePlayerLink(player);
+                    document.getElementById('lastSync').textContent = "не сохранено";
                 });
                 
-                artifact.appendChild(number);
-                artifact.appendChild(removeBtn);
+                const linkContainer = document.createElement('div');
+                linkContainer.className = 'player-link-container';
                 
-                // Добавляем обработчики событий перетаскивания
-                artifact.addEventListener('dragstart', dragStart);
-                artifact.addEventListener('dragend', dragEnd);
+                const linkInput = document.createElement('input');
+                linkInput.className = 'player-link-input';
+                linkInput.type = 'text';
+                linkInput.placeholder = 'Ссылка на опросник';
+                linkInput.value = player.link;
+                linkInput.addEventListener('input', (e) => {
+                    player.link = e.target.value;
+                    document.getElementById('lastSync').textContent = "не сохранено";
+                });
                 
-                return artifact;
-            }
-            
-            // Удаляем артефакт из слота
-            function removeArtifact(artifactElement) {
-                const slot = artifactElement.parentElement;
-                if (slot.classList.contains('artifact-slot')) {
-                    const playerId = parseInt(slot.dataset.playerId);
-                    const slotIndex = parseInt(slot.dataset.slot);
+                const link = document.createElement('a');
+                link.className = 'player-link';
+                link.href = player.link;
+                link.target = '_blank';
+                link.innerHTML = '<span class="player-link-icon">🔗</span> Перейти';
+                
+                linkContainer.appendChild(linkInput);
+                linkContainer.appendChild(link);
+                
+                header.appendChild(nameInput);
+                header.appendChild(linkContainer);
+                playerElement.appendChild(header);
+                
+                // Слоты для артефактов
+                const artifactsContainer = document.createElement('div');
+                artifactsContainer.className = 'player-artifacts';
+                
+                for (let i = 0; i < 6; i++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'artifact-slot';
+                    slot.dataset.playerId = player.id;
+                    slot.dataset.slot = i;
                     
-                    const player = players.find(p => p.id === playerId);
-                    if (player) {
-                        player.artifacts[slotIndex] = null;
-                        
-                        slot.innerHTML = '';
+                    if (player.artifacts[i]) {
+                        const artifact = createArtifactElement(player.artifacts[i]);
+                        artifact.classList.add('artifact-added');
+                        slot.appendChild(artifact);
+                    } else {
                         const empty = document.createElement('div');
                         empty.className = 'empty-slot';
                         empty.textContent = 'Перетащите артефакт';
                         slot.appendChild(empty);
-                        
-                        saveData();
                     }
+                    
+                    // Добавляем обработчики событий перетаскивания
+                    slot.addEventListener('dragover', dragOver);
+                    slot.addEventListener('dragenter', dragEnter);
+                    slot.addEventListener('dragleave', dragLeave);
+                    slot.addEventListener('drop', drop);
+                    
+                    artifactsContainer.appendChild(slot);
                 }
-            }
-            
-            // Обновляем ссылку на опросник
-            function updatePlayerLink(player) {
-                const playerElement = document.querySelector(`.player[data-id="${player.id}"]`);
-                if (playerElement) {
-                    const link = playerElement.querySelector('.player-link');
-                    if (link) {
-                        link.href = player.link;
-                    }
-                }
-            }
-            
-            // Перетаскивание артефактов
-            let draggedItem = null;
-            let dragPreview = null;
-            
-            function dragStart(e) {
-                draggedItem = this;
-                this.classList.add('dragging');
-                e.dataTransfer.setData('text/plain', this.dataset.id);
                 
-                // Создаем превью для перетаскивания
-                dragPreview = document.createElement('div');
-                dragPreview.className = 'drag-preview';
-                dragPreview.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                document.body.appendChild(dragPreview);
+                playerElement.appendChild(artifactsContainer);
                 
-                // Позиционируем превью
-                const updatePreviewPosition = (e) => {
-                    dragPreview.style.left = `${e.clientX}px`;
-                    dragPreview.style.top = `${e.clientY}px`;
-                };
+                // Контроль выдачи
+                const issuedControl = document.createElement('div');
+                issuedControl.className = 'issued-control';
                 
-                document.addEventListener('dragover', updatePreviewPosition);
+                const issuedLabel = document.createElement('div');
+                issuedLabel.className = 'issued-label';
+                issuedLabel.textContent = 'Выдано?';
                 
-                setTimeout(() => {
-                    this.style.opacity = '0.4';
-                }, 0);
-            }
+                const issuedButtons = document.createElement('div');
+                issuedButtons.className = 'issued-buttons';
+                
+                const yesBtn = document.createElement('button');
+                yesBtn.className = `issued-btn issued-btn-yes ${player.issued === true ? 'active' : ''}`;
+                yesBtn.textContent = 'Да';
+                yesBtn.addEventListener('click', () => {
+                    player.issued = true;
+                    yesBtn.classList.add('active');
+                    noBtn.classList.remove('active');
+                    document.getElementById('lastSync').textContent = "не сохранено";
+                });
+                
+                const noBtn = document.createElement('button');
+                noBtn.className = `issued-btn issued-btn-no ${player.issued === false ? 'active' : ''}`;
+                noBtn.textContent = 'Нет';
+                noBtn.addEventListener('click', () => {
+                    player.issued = false;
+                    noBtn.classList.add('active');
+                    yesBtn.classList.remove('active');
+                    document.getElementById('lastSync').textContent = "не сохранено";
+                });
+                
+                issuedButtons.appendChild(yesBtn);
+                issuedButtons.appendChild(noBtn);
+                
+                issuedControl.appendChild(issuedLabel);
+                issuedControl.appendChild(issuedButtons);
+                playerElement.appendChild(issuedControl);
+                
+                // Поле для заметок
+                const notesContainer = document.createElement('div');
+                notesContainer.className = 'notes-container';
+                
+                const notesLabel = document.createElement('label');
+                notesLabel.className = 'notes-label';
+                notesLabel.textContent = 'Заметки:';
+                notesLabel.htmlFor = `notes-${player.id}`;
+                
+                const notesInput = document.createElement('textarea');
+                notesInput.className = 'notes-input';
+                notesInput.id = `notes-${player.id}`;
+                notesInput.placeholder = 'Введите заметки для этого игрока...';
+                notesInput.value = player.notes || '';
+                notesInput.addEventListener('input', (e) => {
+                    player.notes = e.target.value;
+                    document.getElementById('lastSync').textContent = "не сохранено";
+                });
+                
+                notesContainer.appendChild(notesLabel);
+                notesContainer.appendChild(notesInput);
+                playerElement.appendChild(notesContainer);
+                
+                container.appendChild(playerElement);
+            });
+        }
+        
+        // Создаем элемент артефакта
+        function createArtifactElement(artifactId) {
+            const artifact = document.createElement('div');
+            artifact.className = 'artifact';
+            artifact.dataset.id = artifactId;
+            artifact.draggable = true;
             
-            function dragEnd() {
-                this.classList.remove('dragging');
-                this.style.opacity = '1';
-                draggedItem = null;
+            // Устанавливаем картинку (вы можете добавить свои URL здесь)
+            artifact.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            
+            const number = document.createElement('div');
+            number.className = 'artifact-number';
+            number.textContent = artifactId;
+            
+            const removeBtn = document.createElement('div');
+            removeBtn.className = 'artifact-remove';
+            removeBtn.textContent = '×';
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeArtifact(artifact);
+            });
+            
+            artifact.appendChild(number);
+            artifact.appendChild(removeBtn);
+            
+            // Добавляем обработчики событий перетаскивания
+            artifact.addEventListener('dragstart', dragStart);
+            artifact.addEventListener('dragend', dragEnd);
+            
+            return artifact;
+        }
+        
+        // Удаляем артефакт из слота
+        function removeArtifact(artifactElement) {
+            const slot = artifactElement.parentElement;
+            if (slot.classList.contains('artifact-slot')) {
+                const playerId = parseInt(slot.dataset.playerId);
+                const slotIndex = parseInt(slot.dataset.slot);
                 
-                // Удаляем превью
-                if (dragPreview) {
-                    document.body.removeChild(dragPreview);
-                    dragPreview = null;
-                }
-            }
-            
-            function dragOver(e) {
-                e.preventDefault();
-            }
-            
-            function dragEnter(e) {
-                e.preventDefault();
-                this.classList.add('highlight');
-            }
-            
-            function dragLeave() {
-                this.classList.remove('highlight');
-            }
-            
-            function drop(e) {
-                e.preventDefault();
-                this.classList.remove('highlight');
-                
-                const artifactId = e.dataTransfer.getData('text/plain');
-                const playerId = parseInt(this.dataset.playerId);
-                const slotIndex = parseInt(this.dataset.slot);
-                
-                // Находим игрока
                 const player = players.find(p => p.id === playerId);
-                if (!player) return;
-                
-                // Если перетаскиваем из библиотеки артефактов
-                if (draggedItem && draggedItem.parentElement.id === 'artifactsGrid') {
-                    // Создаем новую копию артефакта
-                    const newArtifact = createArtifactElement(artifactId);
-                    newArtifact.classList.add('artifact-added');
+                if (player) {
+                    player.artifacts[slotIndex] = null;
                     
-                    // Очищаем слот
+                    slot.innerHTML = '';
+                    const empty = document.createElement('div');
+                    empty.className = 'empty-slot';
+                    empty.textContent = 'Перетащите артефакт';
+                    slot.appendChild(empty);
+                    
+                    document.getElementById('lastSync').textContent = "не сохранено";
+                }
+            }
+        }
+        
+        // Обновляем ссылку на опросник
+        function updatePlayerLink(player) {
+            const playerElement = document.querySelector(`.player[data-id="${player.id}"]`);
+            if (playerElement) {
+                const link = playerElement.querySelector('.player-link');
+                link.href = player.link;
+            }
+        }
+        
+        // Перетаскивание артефактов
+        let draggedItem = null;
+        let dragPreview = null;
+        
+        function dragStart(e) {
+            draggedItem = this;
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', this.dataset.id);
+            
+            // Создаем превью для перетаскивания
+            dragPreview = document.createElement('div');
+            dragPreview.className = 'drag-preview';
+            dragPreview.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            document.body.appendChild(dragPreview);
+            
+            // Позиционируем превью
+            const updatePreviewPosition = (e) => {
+                dragPreview.style.left = `${e.clientX}px`;
+                dragPreview.style.top = `${e.clientY}px`;
+            };
+            
+            document.addEventListener('dragover', updatePreviewPosition);
+            
+            setTimeout(() => {
+                this.style.opacity = '0.4';
+            }, 0);
+        }
+        
+        function dragEnd() {
+            this.classList.remove('dragging');
+            this.style.opacity = '1';
+            draggedItem = null;
+            
+            // Удаляем превью
+            if (dragPreview) {
+                document.body.removeChild(dragPreview);
+                dragPreview = null;
+            }
+        }
+        
+        function dragOver(e) {
+            e.preventDefault();
+        }
+        
+        function dragEnter(e) {
+            e.preventDefault();
+            this.classList.add('highlight');
+        }
+        
+        function dragLeave() {
+            this.classList.remove('highlight');
+        }
+        
+        function drop(e) {
+            e.preventDefault();
+            this.classList.remove('highlight');
+            
+            const artifactId = e.dataTransfer.getData('text/plain');
+            const playerId = parseInt(this.dataset.playerId);
+            const slotIndex = parseInt(this.dataset.slot);
+            
+            // Находим игрока
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+            
+            // Если перетаскиваем из библиотеки артефактов
+            if (draggedItem && draggedItem.parentElement.id === 'artifactsGrid') {
+                // Создаем новую копию артефакта
+                const newArtifact = createArtifactElement(artifactId);
+                newArtifact.classList.add('artifact-added');
+                
+                // Очищаем слот
+                this.innerHTML = '';
+                this.appendChild(newArtifact);
+                
+                // Обновляем данные игрока
+                player.artifacts[slotIndex] = parseInt(artifactId);
+            }
+            // Если перетаскиваем между слотами
+            else if (draggedItem && draggedItem.classList.contains('artifact')) {
+                const sourceSlot = draggedItem.parentElement;
+                const sourcePlayerId = parseInt(sourceSlot.dataset.playerId);
+                const sourceSlotIndex = parseInt(sourceSlot.dataset.slot);
+                
+                // Находим исходного игрока
+                const sourcePlayer = players.find(p => p.id === sourcePlayerId);
+                if (!sourcePlayer) return;
+                
+                // Получаем ID артефакта
+                const movedArtifactId = parseInt(draggedItem.dataset.id);
+                
+                // Если слот пустой
+                if (this.childNodes.length === 1 && this.firstChild.classList.contains('empty-slot')) {
+                    // Перемещаем артефакт
                     this.innerHTML = '';
-                    this.appendChild(newArtifact);
+                    draggedItem.classList.add('artifact-added');
+                    this.appendChild(draggedItem);
                     
-                    // Обновляем данные игрока
-                    player.artifacts[slotIndex] = parseInt(artifactId);
+                    // Обновляем данные
+                    player.artifacts[slotIndex] = movedArtifactId;
+                    sourcePlayer.artifacts[sourceSlotIndex] = null;
+                    
+                    // Очищаем исходный слот
+                    sourceSlot.innerHTML = '';
+                    const empty = document.createElement('div');
+                    empty.className = 'empty-slot';
+                    empty.textContent = 'Перетащите артефакт';
+                    sourceSlot.appendChild(empty);
                 }
-                // Если перетаскиваем между слотами
-                else if (draggedItem && draggedItem.classList.contains('artifact')) {
-                    const sourceSlot = draggedItem.parentElement;
-                    const sourcePlayerId = parseInt(sourceSlot.dataset.playerId);
-                    const sourceSlotIndex = parseInt(sourceSlot.dataset.slot);
+                // Если слот занят - меняем местами
+                else if (this.firstChild.classList.contains('artifact')) {
+                    const targetArtifact = this.firstChild;
+                    const targetArtifactId = parseInt(targetArtifact.dataset.id);
                     
-                    // Находим исходного игрока
-                    const sourcePlayer = players.find(p => p.id === sourcePlayerId);
-                    if (!sourcePlayer) return;
+                    // Меняем артефакты местами
+                    this.replaceChild(draggedItem, targetArtifact);
+                    sourceSlot.appendChild(targetArtifact);
                     
-                    // Получаем ID артефакта
-                    const movedArtifactId = parseInt(draggedItem.dataset.id);
-                    
-                    // Если слот пустой
-                    if (this.childNodes.length === 1 && this.firstChild.classList.contains('empty-slot')) {
-                        // Перемещаем артефакт
-                        this.innerHTML = '';
-                        draggedItem.classList.add('artifact-added');
-                        this.appendChild(draggedItem);
-                        
-                        // Обновляем данные
-                        player.artifacts[slotIndex] = movedArtifactId;
-                        sourcePlayer.artifacts[sourceSlotIndex] = null;
-                        
-                        // Очищаем исходный слот
-                        sourceSlot.innerHTML = '';
-                        const empty = document.createElement('div');
-                        empty.className = 'empty-slot';
-                        empty.textContent = 'Перетащите артефакт';
-                        sourceSlot.appendChild(empty);
-                    }
-                    // Если слот занят - меняем местами
-                    else if (this.firstChild.classList.contains('artifact')) {
-                        const targetArtifact = this.firstChild;
-                        const targetArtifactId = parseInt(targetArtifact.dataset.id);
-                        
-                        // Меняем артефакты местами
-                        this.replaceChild(draggedItem, targetArtifact);
-                        sourceSlot.appendChild(targetArtifact);
-                        
-                        // Обновляем данные
-                        player.artifacts[slotIndex] = movedArtifactId;
-                        sourcePlayer.artifacts[sourceSlotIndex] = targetArtifactId;
-                    }
+                    // Обновляем данные
+                    player.artifacts[slotIndex] = movedArtifactId;
+                    sourcePlayer.artifacts[sourceSlotIndex] = targetArtifactId;
                 }
+            }
+            
+            document.getElementById('lastSync').textContent = "не сохранено";
+        }
+        
+        // Показываем уведомление о синхронизации
+        function showSyncNotification() {
+            const notification = document.getElementById('syncNotification');
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Создаем артефакты в библиотеке
+        function createArtifactsLibrary() {
+            const artifactsGrid = document.getElementById('artifactsGrid');
+            artifactsGrid.innerHTML = '';
+            
+            for (let i = 1; i <= 44; i++) {
+                const artifact = document.createElement('div');
+                artifact.className = 'artifact';
+                artifact.dataset.id = i;
+                artifact.draggable = true;
+                artifact.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
                 
-                saveData();
-            }
-            
-            // Показываем уведомление о синхронизации
-            function showSyncNotification() {
-                const notification = document.getElementById('syncNotification');
-                if (notification) {
-                    notification.classList.add('show');
-                    setTimeout(() => {
-                        notification.classList.remove('show');
-                    }, 3000);
-                }
-            }
-            
-            // Улучшенная синхронизация данных между вкладками и устройствами
-            function setupSync() {
-                // Синхронизация через событие storage (основной метод)
-                window.addEventListener('storage', (e) => {
-                    if (e.key === STORAGE_KEY && e.newValue) {
-                        processDataUpdate(e.newValue);
-                    }
-                    
-                    if (e.key === GENERAL_NOTES_KEY) {
-                        document.getElementById('generalNotes').value = e.newValue || '';
-                        showSyncNotification();
-                    }
-                    
-                    if (e.key === LAST_SYNC_KEY) {
-                        const lastSyncElement = document.getElementById('lastSync');
-                        if (lastSyncElement) {
-                            lastSyncElement.textContent = e.newValue ? `Последняя синхронизация: ${e.newValue}` : '';
-                        }
-                    }
-                });
+                const number = document.createElement('div');
+                number.className = 'artifact-number';
+                number.textContent = i;
                 
-                // Альтернативный метод: проверка timestamp каждые 2 секунды
-                setInterval(() => {
-                    checkForUpdates();
-                }, 2000);
+                artifact.appendChild(number);
+                artifact.addEventListener('dragstart', dragStart);
+                artifact.addEventListener('dragend', dragEnd);
                 
-                // Слушаем изменения в Firebase
-                database.ref('data').on('value', (snapshot) => {
-                    const data = snapshot.val();
-                    if (data) {
-                        players = data.players || createInitialPlayers();
-                        document.getElementById('generalNotes').value = data.generalNotes || '';
-                        
-                        // Сохраняем в localStorage
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
-                        localStorage.setItem(GENERAL_NOTES_KEY, data.generalNotes || '');
-                        localStorage.setItem(TIMESTAMP_KEY, data.timestamp || Date.now().toString());
-                        
-                        // Обновляем интерфейс
-                        renderPlayers();
-                        updateLastSyncTime();
-                        
-                        showSyncNotification();
-                    }
-                });
+                artifactsGrid.appendChild(artifact);
             }
+        }
+        
+        // Инициализация страницы
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Создаем библиотеку артефактов
+            createArtifactsLibrary();
             
-            // Проверка обновлений данных
-            function checkForUpdates() {
-                const lastUpdate = localStorage.getItem(TIMESTAMP_KEY);
-                const currentUpdate = localStorage.getItem('currentTimestamp_v3');
-                
-                if (lastUpdate && currentUpdate && lastUpdate !== currentUpdate) {
-                    // Данные были обновлены в другой вкладке
-                    const savedData = localStorage.getItem(STORAGE_KEY);
-                    if (savedData) {
-                        processDataUpdate(savedData);
-                    }
-                    
-                    const generalNotes = localStorage.getItem(GENERAL_NOTES_KEY);
-                    if (generalNotes !== null) {
-                        document.getElementById('generalNotes').value = generalNotes;
-                    }
-                    
-                    localStorage.setItem('currentTimestamp_v3', lastUpdate);
-                    showSyncNotification();
-                }
-            }
+            // Загружаем данные из Firebase
+            await loadData();
             
-            // Обработка обновленных данных
-            function processDataUpdate(newData) {
-                try {
-                    const parsedData = JSON.parse(newData);
-                    if (Array.isArray(parsedData)) {
-                        players = parsedData;
-                        renderPlayers();
-                        updateLastSyncTime();
-                        showSyncNotification();
-                    }
-                } catch (error) {
-                    console.error('Ошибка при обработке обновленных данных:', error);
-                }
-            }
+            // Настройка кнопок
+            document.getElementById('resetBtn').addEventListener('click', resetData);
+            document.getElementById('addPlayerBtn').addEventListener('click', addNewPlayer);
+            document.getElementById('saveBtn').addEventListener('click', saveData);
             
-            // Загружаем данные
-            let players = loadData();
-            
-            // Инициализация страницы
-            document.addEventListener('DOMContentLoaded', () => {
-                try {
-                    // Инициализируем перетаскивание для всех артефактов в библиотеке
-                    const artifactsGrid = document.getElementById('artifactsGrid');
-                    if (artifactsGrid) {
-                        // Добавляем артефакты от 1 до 44
-                        for (let i = 1; i <= 44; i++) {
-                            const artifact = document.createElement('div');
-                            artifact.className = 'artifact';
-                            artifact.dataset.id = i;
-                            artifact.draggable = true;
-                            artifact.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                            
-                            const number = document.createElement('div');
-                            number.className = 'artifact-number';
-                            number.textContent = i;
-                            
-                            artifact.appendChild(number);
-                            artifact.addEventListener('dragstart', dragStart);
-                            artifact.addEventListener('dragend', dragEnd);
-                            
-                            artifactsGrid.appendChild(artifact);
-                        }
-                    }
-                    
+            // Слушаем изменения в Firebase в реальном времени
+            database.ref('data').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    players = data.players || createInitialPlayers();
+                    document.getElementById('generalNotes').value = data.generalNotes || '';
                     renderPlayers();
-                    
-                    // Настройка кнопок
-                    const resetBtn = document.getElementById('resetBtn');
-                    if (resetBtn) {
-                        resetBtn.addEventListener('click', resetData);
-                    }
-                    
-                    const addPlayerBtn = document.getElementById('addPlayerBtn');
-                    if (addPlayerBtn) {
-                        addPlayerBtn.addEventListener('click', addNewPlayer);
-                    }
-                    
-                    // Настройка синхронизации
-                    setupSync();
-                    
-                    // Устанавливаем начальную метку времени
-                    if (!localStorage.getItem('currentTimestamp_v3')) {
-                        localStorage.setItem('currentTimestamp_v3', Date.now().toString());
-                    }
-                    
-                    // Автосохранение общих заметок
-                    const generalNotes = document.getElementById('generalNotes');
-                    if (generalNotes) {
-                        generalNotes.addEventListener('input', saveData);
-                    }
-                    
-                    // Первоначальная проверка обновлений
-                    checkForUpdates();
-                } catch (e) {
-                    console.error('Ошибка инициализации:', e);
-                    alert('Произошла ошибка при загрузке приложения. Пожалуйста, обновите страницу.');
+                    document.getElementById('lastSync').textContent = "данные синхронизированы";
                 }
             });
-        } catch (e) {
-            console.error('Глобальная ошибка:', e);
-            alert('Критическая ошибка приложения: ' + e.message);
-        }
+        });
     </script>
 </body>
 </html>
