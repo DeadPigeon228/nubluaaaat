@@ -723,16 +723,7 @@
     <div id="syncNotification" class="sync-notification"></div>
 
     <script>
-        // Конфигурация GitHub
-        const GITHUB_USERNAME = 'DeadPigeon228';
-        const GITHUB_REPO = 'artefact';
-        const GITHUB_TOKEN = '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'; 
-        const GITHUB_FILE_PATH = 'data.json';
-        
-        // Ключи для localStorage
-        const STORAGE_KEY = 'playersArtifactsSystem_v9';
-        const GENERAL_NOTES_KEY = 'generalNotes_v5';
-        
+   
         // Создаем начальные данные для 20 игроков
         function createInitialPlayers() {
             const players = [];
@@ -773,19 +764,7 @@
             if (fileData.content && fileData.content !== "") {
                 const content = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
                 
-                // Сохраняем в localStorage
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(content.players || []));
-                localStorage.setItem(GENERAL_NOTES_KEY, content.generalNotes || '');
-                
-                return {
-                    players: content.players || createInitialPlayers(),
-                    generalNotes: content.generalNotes || ""
-                };
-            }
-        }
-    } catch (error) {
-        console.error("Ошибка загрузки с GitHub:", error);
-    }
+              
     
     // Если не удалось загрузить с GitHub или файл пустой, пробуем локальные данные
     const localPlayers = loadLocalPlayers();
@@ -802,9 +781,7 @@
                 lastUpdated: new Date().toISOString()
             };
             
-            // Сохраняем локально
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
-            localStorage.setItem(GENERAL_NOTES_KEY, data.generalNotes);
+        
             
             // Синхронизируем с GitHub
             try {
